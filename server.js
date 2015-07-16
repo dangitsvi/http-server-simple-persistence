@@ -33,8 +33,8 @@ app.post('/', function(req, res) {
     fs.writeFile(path, obj, function(err) {
     if(err) return res.send(500 + ' Write file error');
     });
-    res.send('post worked');
-  })
+    res.send('File Received');
+  });
 });
 
 
@@ -48,7 +48,7 @@ app.put('/:id', function(req, res) {
     firstName: JSON.parse(obj).firstName || null,
     email: JSON.parse(obj).email || null,
     powerLevel: JSON.parse(obj).powerLevel || null
-  }
+  };
   //read directory to see if the file exists
   fs.readdir('./user/', function(err, files) {
     if(err) return res.send(404 + ' File not found');
@@ -62,7 +62,7 @@ app.put('/:id', function(req, res) {
           //initialize a new object to be written into the destination file
           var newObj = {firstName: null, email:null, powerLevel:null};
           //Assign properties into new object if a new value was given. if not then pass in the old information
-          for(prop in newObj){
+          for(var prop in newObj){
             newObj[prop] = (objProps[prop]) ? objProps[prop] : user[prop];
           }
           //write to file
@@ -85,7 +85,7 @@ app.delete('/:id', function(req, res) {
   var path = './user/' + req.params.id + '.json';
   fs.unlink(path, function(err) {
     if(err) return res.send(404 + ' File not found');
-  })
+  });
   res.send(req.params.id + ' has been deleted');
 });
 

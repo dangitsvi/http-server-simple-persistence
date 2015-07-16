@@ -31,51 +31,50 @@ app.post('/', function(req, res) {
     var path = './user/' + id + '.json';
 
     fs.writeFile(path, obj, function(err) {
-    if(err) return res.send('Write file error');
+    if(err) return res.send(500 + ' Write file error');
     });
     res.send('post worked');
   })
 });
 
+
 app.put('/:id', function(req, res) {
   var id = req.params.id;
   var path = './user/' + id + '.json';
+  //grab request arguements
   var obj = JSON.stringify(req.body);
-  console.log(obj);
+  //create object based on resource format and check to see which properties are being written in
   var objProps = {
-    firstName: JSON.parse(obj).firstName,
-    email: JSON.parse(obj).email,
-    powerLevel: JSON.parse(obj).powerLevel
+    firstName: JSON.parse(obj).firstName || null,
+    email: JSON.parse(obj).email || null,
+    powerLevel: JSON.parse(obj).powerLevel || null
   }
-  console.log(objProps);
+  //read directory to see if the file exists
   fs.readdir('./user/', function(err, files) {
     if(err) return res.send(404 + ' File not found');
+    //parse through directory names to find match
     for(var i = 0; i < files.length; i++) {
+      //if there is a match then rewrite to correct properties
       if(files[i] === id + '.json'){
-        console.log('found matching file');
-        /*fs.readFile(path, function(err, data) {
-          var user = data;
-          console.log(JSON.stringify(user.toString()));
-          console.log(JSON.parse(user));
+        fs.readFile(path, 'utf8', function(err, data) {
+          //grab the file info and parse into object literal notation
+          var user = JSON.parse(data);
+          //initialize a new object to be written into the destination file
           var newObj = {firstName: null, email:null, powerLevel:null};
-          console.log(newObj);
+          //Assign properties into new object if a new value was given. if not then pass in the old information
           for(prop in newObj){
             newObj[prop] = (objProps[prop]) ? objProps[prop] : user[prop];
           }
-          console.log(newObj)
-          fs.writeFile(path, newObj, function(err) {
+          //write to file
+          fs.writeFile(path, JSON.stringify(newObj), function(err) {
             if(err) return res.send('Write file error');
-          })
+          });
+          res.send('File updated');
         });
-        */
-
+      //if there is no match then write to new file
       }else{
-        var newObj = {firstName: null, email:null, powerLevel:null};
-        for(prop in newObj){
-          newObj[prop] = (objProps[prop]) ? objProps[prop] : null;
-        }
-        fs.writeFile(path, newObj, function(err) {
-          if(err) return res.send('Write file error');
+        fs.writeFile(path, JSON.stringify(objProps), function(err) {
+          if(err) return res.send(500 +' Write file error');
         });
       }
     }
